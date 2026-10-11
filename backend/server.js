@@ -254,7 +254,7 @@ app.post('/add-stock-in', async (req, res) => {
         const { nextTxnId, nextTxnCode } = await generateNextTxnDetails();
 
         // Insert into stock_transaction table with user_id included
-        const txnSql = 'INSERT INTO stock_transaction (txn_id, txn_code, batch_id, medicine_id, txn_type, qty_change, reason, user_id) VALUES (?, ?, ?, ?, "Stock In", ?, "Add Stock", ?)';
+        const txnSql = 'INSERT INTO stock_transaction (txn_id, txn_code, batch_id, medicine_id, txn_type, qty_change, reason, user_id) VALUES (?, ?, ?, ?, \'Stock In\', ?, "Add Stock", ?)';
         db.query(txnSql, [nextTxnId, nextTxnCode, nextBatchId, medicine_id, qtyNum, user_id || null], (err2) => {
             if (err2) 
                 return res.status(500).json({ success: false, message: err2.message });
@@ -322,7 +322,7 @@ app.post('/add-stock-out', async (req, res) => {
 
                 const txnSql = `
                     INSERT INTO stock_transaction (txn_id, txn_code, batch_id, medicine_id, txn_type, qty_change, reason, user_id) 
-                    VALUES (?, ?, ?, ?, "Stock Out", ?, ?, ?)
+                    VALUES (?, ?, ?, ?, 'Stock Out', ?, ?, ?)
                 `;
                 await new Promise((resolve, reject) => {
                     db.query(txnSql, [nextTxnId, nextTxnCode, batch.batch_id, medicine_id, -deductFromThisBatch, reason, user_id], (e) => {
@@ -358,7 +358,7 @@ app.post('/api/write-off-batch', async (req, res) => {
 
         const txnSql = `
             INSERT INTO stock_transaction (txn_id, txn_code, batch_id, medicine_id, txn_type, qty_change, reason) 
-            VALUES (?, ?, ?, ?, "Stock Out", ?, "Expired Write-off (Loss)")
+            VALUES (?, ?, ?, ?, 'Stock Out', ?, "Expired Write-off (Loss)")
         `;
         db.query(txnSql, [nextTxnId, nextTxnCode, batch_id, medicine_id, -Number(quantity)], (err2) => {
             if (err2) 
@@ -588,6 +588,7 @@ function generateNextTxnDetails() {
     });
 }
 
-app.listen(3000, () => {
-    console.log('Server running at http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
