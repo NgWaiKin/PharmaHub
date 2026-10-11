@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaHub - Reports</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="js/APITranslate.js"></script>
+    <script src="js/general.js" defer></script>
+    <script src="js/reports.js" defer></script>
+</head>
+<body>
+
+    <div class="lang-switcher-top">
+        <button type="button" class="btn-language active" data-language="en">EN <i class="fa-solid fa-globe"></i></button>
+        <button type="button" class="btn-language" data-language="ms">MS <i class="fa-solid fa-globe"></i></button>
+    </div>
+
+    <header>
+        <h1 data-translate>PharmaHub Audit Trail Reports</h1>
+        <p><span data-translate>Time: </span><strong id="currentSystemClock">Loading...</strong></p>
+
+        <div id="weatherWidget">
+            <span>Weather</span>
+            <i class="fa-solid fa-cloud-sun"></i> 
+            <span id="weatherText">Loading weather...</span>
+        </div>
+    </header>
+
+    <div class="user_bar">
+        <span><span  data-translate>Logged in as</span>: <strong id="sidebarUsername">Administrator</strong></span>
+        <button type="button" id="logoutBtn" class="logout_btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span data-translate>Logout</span></button>
+    </div>
+
+    <nav>
+        <a href="index.html"><i class="fa-solid fa-chart-line"></i> <span data-translate>Dashboard</span></a>
+        <a href="inventory.html"><i class="fa-solid fa-pills"></i> <span data-translate>Inventory</span></a>
+        <a href="stock_In-Out.html"><i class="fa-solid fa-right-left"></i> <span data-translate>Stock In/Out</span></a>
+        <a href="batches_expiryTracker.html"><i class="fa-solid fa-calendar-days"></i> <span data-translate>Batch & Expiry</span></a>
+        <a class="active" href="reports.html"><i class="fa-solid fa-file-invoice-dollar"></i> <span data-translate>Reports</span></a>
+    </nav>
+
+    <main>
+        <!-- Filter for stock in & stock out -->
+        <fieldset>
+            <legend data-translate>Filter Transaction Logs</legend>
+            <label for="filterKeyword"><span data-translate>Search by Medicine Name</span> / TXN Code:</label>
+            <input type="text" id="filterKeyword" placeholder="e.g. Paracetamol or TXN-2026...">
+
+            <label for="filterType"><span data-translate>Filter by Type</span> :</label>
+            <select id="filterType">
+                <option value="">-- All Types --</option>
+                <option value="Stock In">Stock In</option>
+                <option value="Stock Out">Stock Out</option>
+            </select>
+
+            <button type="button" id="applyFilterBtn"><span data-translate>Search </span><i class="fas fa-sliders-h"></i></button>
+            <button type="button" id="resetFilterBtn" class="btn-secondary"><span data-translate>Reset </span><i class="fas fa-redo"></i></button>
+        </fieldset>
+
+        <fieldset>
+            <legend data-translate>Stock Movement Transaction Logs</legend>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>TXN Code</th>
+                        <th><span data-translate>Transaction Time </span>
+                            <button type="button" id="sortTimeBtn" class="sort_btn" title="Sort Time">&#x25BC; (DESC)</button>
+                        </th>
+                        <th data-translate>Medicine</th>
+                        <th data-translate>Batch ID</th>
+                        <th data-translate>Type</th>
+                        <th data-translate>Quantity Change</th>
+                        <th data-translate>Reason</th>
+                        <th><span data-translate>Total Amount</span> 
+                            <button type="button" id="currencyToggleBtn" class="btn btn-sm btn-outline-secondary py-0 px-1 ms-1" title="Click to cycle currency">
+                                <span id="currencyLabel">(MYR)</span> &#x21BB;
+                            </button>
+                        </th>
+                        <th data-translate>Action By</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">Loading logs...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+    </main>
+
+    <footer>
+        <hr>
+        <p>&copy; 2026 PharmaHub System</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaHub - Stock In/Out</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="js/APITranslate.js"></script>
+    <script src="js/general.js" defer></script>
+    <script src="js/stock_In-Out.js" defer></script>
+</head>
+<body>
+
+    <div class="lang-switcher-top">
+        <button type="button" class="btn-language active" data-language="en">EN <i class="fa-solid fa-globe"></i></button>
+        <button type="button" class="btn-language" data-language="ms">MS <i class="fa-solid fa-globe"></i></button>
+    </div>
+
+    <header>
+        <h1 data-translate>PharmaHub Stock Operations</h1>
+        <p><span data-translate>Time: </span><strong id="currentSystemClock">Loading...</strong></p>
+
+        <div id="weatherWidget">
+            <span>Weather</span>
+            <i class="fa-solid fa-cloud-sun"></i> 
+            <span id="weatherText">Loading weather...</span>
+        </div>
+    </header>
+
+    <div class="user_bar">
+        <span><span  data-translate>Logged in as</span>: <strong id="sidebarUsername">Administrator</strong></span>
+        <button type="button" id="logoutBtn" class="logout_btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span data-translate>Logout</span></button>
+    </div>
+
+    <nav>
+        <a href="index.html"><i class="fa-solid fa-chart-line"></i> <span data-translate>Dashboard</span></a>
+        <a href="inventory.html"><i class="fa-solid fa-pills"></i> <span data-translate>Inventory</span></a>
+        <a class="active" href="stock_In-Out.html"><i class="fa-solid fa-right-left"></i> <span data-translate>Stock In/Out</span></a>
+        <a href="batches_expiryTracker.html"><i class="fa-solid fa-calendar-days"></i> <span data-translate>Batch & Expiry</span></a>
+        <a href="reports.html"><i class="fa-solid fa-file-invoice-dollar"></i> <span data-translate>Reports</span></a>
+    </nav>
+
+    <main>
+        <!-- Stock In -->
+        <fieldset>
+            <legend data-translate>Stock In (Receive Inventory)</legend>
+            <form id="stockInForm">
+                <label for="inCategory" data-translate>Category</label>
+                <select id="inCategory">
+                    <option value="">-- All Categories --</option>
+                    <option value="Group B">Group B</option>
+                    <option value="Group C">Group C</option>
+                    <option value="Group OTC">Group OTC</option>
+                </select>
+
+                <label for="inMedicineType" data-translate>Medicine Type</label>
+                <select id="inMedicineType">
+                    <option value="">-- All Medicine Types --</option>
+                </select>
+
+                <label for="inMedicine" data-translate>Select Medicine</label>
+                <select id="inMedicine" name="medicine_id" required>
+                    <option value="">-- Choose Medicine --</option>
+                </select>
+
+                <!-- View The Stock Value -->
+                <div class="batch_preview_box">
+                    <strong><span data-translate>Existing Batches </span>:</strong>
+                    <ul id="inBatchList" class="batch_list">
+                        <li class="text-muted" data-translate>Select a medicine to view batches</li>
+                    </ul>
+                </div>
+
+                <label for="inQty" data-translate>Quantity</label>
+                <input type="number" id="inQty" name="quantity" min="1" placeholder="e.g. 50" required>
+
+                <label for="inExpiry" data-translate>Expiry Date</label>
+                <input type="date" id="inExpiry" name="expiry_date" required>
+
+                <label for="inSupplier" data-translate>Supplier</label>
+                <select id="inSupplier" name="supplier_id" required>
+                    <option value="" data-translate>Select Supplier</option>
+                </select>
+
+                <button type="submit"><span data-translate>Submit Stock In </span> <i class="fas fa-arrow-left"></i></button>
+            </form>
+        </fieldset>
+
+        <!-- Stock out -->
+        <fieldset>
+            <legend data-translate>Stock Out (Dispense / Deduct)</legend>
+            <form id="stockOutForm">
+                <label for="outCategory" data-translate>Category</label>
+                <select id="outCategory">
+                    <option value="">-- All Categories --</option>
+                    <option value="Group B">Group B</option>
+                    <option value="Group C">Group C</option>
+                    <option value="Group OTC">Group OTC</option>
+                </select>
+
+                <label for="outMedicineType" data-translate>Medicine Type</label>
+                <select id="outMedicineType">
+                    <option value="">-- All Medicine Types --</option>
+                </select>
+
+                <label for="outMedicine" data-translate>Select Medicine</label>
+                <select id="outMedicine" name="medicine_id" required>
+                    <option value="">-- Choose Medicine --</option>
+                </select>
+
+                <!-- Stock Ou twith Following the Date -->
+                <div class="batch_preview_box">
+                    <strong><span data-translate>Available Batches (Deduct Order)</span> :</strong>
+                    <ul id="outBatchList" class="batch_list">
+                        <li class="text-muted" data-translate>Select a medicine to view batches</li>
+                    </ul>
+                </div>
+
+                <label for="outQty" data-translate>Deduct Quantity</label>
+                <input type="number" id="outQty" name="deduct_qty" min="1" placeholder="e.g. 10" required>
+
+                <label for="outReason" data-translate>Stock Out Reason</label>
+                <select id="outReason" name="reason" required>
+                    <option value="Prescription Dispense (Selling)">Prescription Dispense (Selling)</option>
+                    <option value="OTC Retail Sale (Selling)">OTC Retail Sale (Selling)</option>
+                    <option value="Expired Write-off (Loss)">Expired Write-off (Loss)</option>
+                    <option value="Damaged Packaging (Loss)">Damaged Packaging (Loss)</option>
+                </select>
+
+                <button type="submit" class="btn-danger"><span data-translate>Confirm Stock Out </span> <i class="fas fa-arrow-right"></i></button>
+            </form>
+        </fieldset>
+    </main>
+
+    <footer>
+        <hr>
+        <p>&copy; 2026 PharmaHub System</p>
+    </footer>
+
+</body>
+</html>

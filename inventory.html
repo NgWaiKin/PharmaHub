@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaHub - Inventory</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="js/APITranslate.js"></script>
+    <script src="js/general.js" defer></script>
+    <script src="js/inventory.js" defer></script>
+</head>
+<body>
+
+    <div class="lang-switcher-top">
+        <button type="button" class="btn-language active" data-language="en">EN <i class="fa-solid fa-globe"></i></button>
+        <button type="button" class="btn-language" data-language="ms">MS <i class="fa-solid fa-globe"></i></button>
+    </div>
+
+    <header>
+        <h1 data-translate>PharmaHub Inventory</h1>
+        <p><span data-translate>Time: </span><strong id="currentSystemClock">Loading...</strong></p>
+
+        <div id="weatherWidget">
+            <span>Weather</span>
+            <i class="fa-solid fa-cloud-sun"></i> 
+            <span id="weatherText">Loading weather...</span>
+        </div>
+    </header>
+
+    <div class="user_bar">
+        <span><span  data-translate>Logged in as</span>: <strong id="sidebarUsername">Administrator</strong></span>
+        <button type="button" id="logoutBtn" class="logout_btn"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span data-translate>Logout</span></button>
+    </div>
+
+    <nav>
+        <a href="index.html"><i class="fa-solid fa-chart-line"></i> <span data-translate>Dashboard</span></a>
+        <a class="active" href="inventory.html"><i class="fa-solid fa-pills"></i> <span data-translate>Inventory</span></a>
+        <a href="stock_In-Out.html"><i class="fa-solid fa-right-left"></i> <span data-translate>Stock In/Out</span></a>
+        <a href="batches_expiryTracker.html"><i class="fa-solid fa-calendar-days"></i> <span data-translate>Batch & Expiry</span></a>
+        <a href="reports.html"><i class="fa-solid fa-file-invoice-dollar"></i> <span data-translate>Reports</span></a>
+    </nav>
+
+    <main>
+        <!-- Search and Filter Section -->
+        <fieldset>
+            <legend data-translate>Search & Filter</legend>
+            <label for="searchMedInput"><span data-translate>Search Medicine</span> :</label>
+            <input type="text" id="searchMedInput" placeholder="Search by using Medicine Name or Medicine ID...">
+            <button type="button" id="searchMedBtn"><span data-translate>Search </span><i class="fas fa-search"></i></button>
+            <button type="button" id="resetFilterBtn" class="btn-secondary"><span data-translate>Reset </span><i class="fas fa-redo"></i></button>
+        </fieldset>
+
+        <!-- Registered Drug Grid List Section -->
+        <fieldset>
+            <legend data-translate>Registered Drug List</legend>
+            
+            <!-- Action bar above grid containing the Add Medicine button -->
+            <div class="list_action_bar">
+                <span class="text-muted" data-translate>Overview of all registered medicine items in inventory</span>
+                <button type="button" id="openAddModalBtn" class="btn-primary-action"><i class="fas fa-plus"></i> <span data-translate>Add New Medicine</span></button>
+            </div>
+
+            <!-- Grid card container replacing the original table -->
+            <div id="medicineGrid" class="medicine-grid-container">
+                <p class="text-center text-muted">Loading inventory...</p>
+            </div>
+        </fieldset>
+    </main>
+
+    <!-- Modal for Add and Edit Medicine -->
+    <div id="medModal" class="modal">
+        <div class="modal_content">
+            <div class="modal_header">
+                <h3 id="formTitle" data-translate>Add New Medicine</h3>
+                <button type="button" class="modal_close_x" id="closeMedModalX">&times;</button>
+            </div>
+            <div class="modal_body">
+                <form id="medForm" action="/add-medicine" method="POST">
+                    <label for="medicine_id" data-translate>Medicine ID</label>
+                    <input type="text" id="medicine_id" name="medicine_id" placeholder="e.g. MED-1013" required>
+
+                    <label for="medicine_name" data-translate>Medicine Name</label>
+                    <input type="text" id="medicine_name" name="medicine_name" placeholder="e.g. Ibuprofen 400mg" required>
+
+                    <label for="addMedicineImage" data-translate>Medicine Image</label>
+                    <input type="file" id="addMedicineImage" name="addMedicineImage" accept="image/*" onchange="previewSelectedImage(event)">
+                    <img id="previewImage" src="#" alt="Preview Image" class="preview-image" style="display: none; width: 80px; height: 80px; object-fit: cover; margin-top: 6px;">
+                    
+                    <label for="category" data-translate>Category</label>
+                    <select id="category" name="category" required>
+                        <option value="">-- Select Category --</option>
+                        <option value="Group B">Group B</option>
+                        <option value="Group C">Group C</option>
+                        <option value="Group OTC">Group OTC</option>
+                    </select>
+
+                    <label for="medicine_type" data-translate>Medicine Type</label>
+                    <select id="medicine_type" name="medicine_type" required>
+                        <option value="">-- Please select category first --</option>
+                    </select>
+
+                    <label for="dosage_form" data-translate>Dosage Form</label>
+                    <select id="dosage_form" name="dosage_form" required>
+                        <option value="">-- Select Dosage Form --</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Capsule">Capsule</option>
+                        <option value="Chewable Tablet">Chewable Tablet</option>
+                    </select>
+
+                    <label for="cost_price" data-translate>Cost Price (RM)</label>
+                    <input type="number" step="0.01" id="cost_price" name="cost_price" placeholder="0.00" required>
+
+                    <label for="selling_price" data-translate>Selling Price (RM)</label>
+                    <input type="number" step="0.01" id="selling_price" name="selling_price" placeholder="0.00" required>
+
+                    <label for="minStock" data-translate>Minimum Safety Stock</label>
+                    <input type="number" id="minStock" name="minStock" value="50" required>
+
+                    <label for="remarks" data-translate>Medicine Remarks</label>
+                    <textarea id="remarks" name="remarks" placeholder="Store in refrigerator (2°C - 8°C)" rows="2" style="width: 100%; resize: none;"></textarea>
+
+                    <div class="modal_actions">
+                        <button type="button" id="closeMedModalBtn" class="btn-secondary"><span data-translate>Cancel</span> ✖</i></button>
+                        <button type="submit" id="submitBtn"><span data-translate>Save Medicine</span> ✔</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <hr>
+        <p>&copy; 2026 PharmaHub System</p>
+    </footer>
+
+</body>
+</html>

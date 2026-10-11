@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaHub - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="js/APITranslate.js"></script>
+    <script src="js/login.js" defer></script>
+</head>
+<body>
+
+    <div class="lang-switcher-top">
+        <button type="button" class="btn-language active" data-language="en">EN <i class="fa-solid fa-globe"></i></button>
+        <button type="button" class="btn-language" data-language="ms">MS <i class="fa-solid fa-globe"></i></button>
+    </div>
+
+    <!--PharmaHub Logo-->
+    <div style="display: flex; justify-content: center; align-items: flex-start;">
+        <img src="Logo/PharmaHub.png" alt="PharmaHub Logo" style="display: block; margin-bottom: 30px;">
+    </div>
+
+    <header>
+        <h1><i class="fa-solid fa-house-chimney-medical" style="color: #4e82cf;"></i> PharmaHub Inventory System <i class="fa-solid fa-database" style="color: #4e82cf;"></i></h1>
+        <p data-translate>Please enter your credentials to login</p>
+    </header>
+
+    <main class="login_container">
+        <fieldset>
+            <legend><span data-translate>User Login </span><i class="fa-solid fa-circle-user" style="color: #0055d4;"></i></legend>
+            <form id="loginForm">
+                <label for="loginUsername"><span data-translate>Username </span> :</label>
+                <input type="text" id="loginUsername" placeholder="e.g. admin" required>
+
+                <label for="loginPassword"><span data-translate>Password </span> :</label>
+                <input type="password" id="loginPassword" placeholder="e.g. 123456" required>
+
+                <div id="loginErrorMessage" class="error_message"></div>
+
+                <br>
+
+                <button type="submit" class="login_btn"><span  data-translate>Login </span> <i class="fas fa-sign-in-alt"></i></button>
+            </form>
+        </fieldset>
+    </main>
+
+    <footer>
+        <hr>
+        <p>&copy; 2026 PharmaHub System</p>
+    </footer>
+
+</body>
+</html>
+
+
