@@ -455,7 +455,8 @@ app.get('/api/external/translate', async (req, res) => {
         const response = await axios.get('https://api.mymemory.translated.net/get', {
             params: {
                 q: text,
-                langpair: langpair
+                langpair: langpair,
+                de:'waikin.ng@qiu.edu.my'
             },
             timeout: 5000 
         });
