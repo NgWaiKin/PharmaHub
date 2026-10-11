@@ -426,44 +426,57 @@ app.get('/api/reports', (req, res) => {
 });
 
 //============== API Translate Section ===============
+const translationCache = {}; // Memory cache to store translated strings and avoid redundant API requests
+
 app.get('/api/external/translate', async (req, res) => {
     try {
         const { text, targetLang } = req.query;
 
+        // Validate if text is provided in the query parameters
         if (!text) {
             return res.status(400).json({ success: false, message: 'Text is required' });
         }
 
-        // Construct language pair parameter , english or malay
-        const langpair = `en|${targetLang || 'ms'}`;
+        const lang = targetLang || 'ms';
+        const cacheKey = `${lang}:${text}`;
 
-        // Send GET request to MyMemory External Translation API
+        // Return cached translation immediately if available to bypass external API call limits
+        if (translationCache[cacheKey]) {
+            return res.json({
+                success: true,
+                translated_text: translationCache[cacheKey]
+            });
+        }
+
+        // English to Malay
+        const langpair = `en|${lang}`;
+
+        // Send GET request to MyMemory External Translation API with a 5-second timeout limit
         const response = await axios.get('https://api.mymemory.translated.net/get', {
             params: {
                 q: text,
                 langpair: langpair
             },
-            timeout: 5000 //5 second request timeout limit
+            timeout: 5000 
         });
 
-        // Check if API returned valid translation data
+        // Verify if the API returned valid translation data
         if (response.data && response.data.responseData) {
+            const translatedText = response.data.responseData.translatedText;
+            translationCache[cacheKey] = translatedText; // Save the translation result into memory cache
             return res.json({
                 success: true,
-                translated_text: response.data.responseData.translatedText
+                translated_text: translatedText
             });
         }
-        else{
+        else {
             return res.json({ success: false, translated_text: text });
         }
     }
     catch (error){
-        console.error('[Backend i18n Proxy Error]:', error.message);
-        // Fallback to original text on proxy error or network failure
         res.json({ success: false, translated_text: req.query.text });
     }
 });
-
 // ==================== Real-Time Weather API Proxy (Open-Meteo) ====================
 let weatherCache = {
     data: null,
