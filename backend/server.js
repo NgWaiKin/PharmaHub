@@ -254,7 +254,7 @@ app.post('/add-stock-in', async (req, res) => {
         const { nextTxnId, nextTxnCode } = await generateNextTxnDetails();
 
         // Insert into stock_transaction table with user_id included
-        const txnSql = 'INSERT INTO stock_transaction (txn_id, txn_code, batch_id, medicine_id, txn_type, qty_change, reason, user_id) VALUES (?, ?, ?, ?, \'Stock In\', ?, "Add Stock", ?)';
+        const txnSql = 'INSERT INTO stock_transaction (txn_id, txn_code, batch_id, medicine_id, txn_type, qty_change, reason, user_id) VALUES (?, ?, ?, ?, \'Stock In\', ?, \'Add Stock\', ?)';
         db.query(txnSql, [nextTxnId, nextTxnCode, nextBatchId, medicine_id, qtyNum, user_id || null], (err2) => {
             if (err2) 
                 return res.status(500).json({ success: false, message: err2.message });
