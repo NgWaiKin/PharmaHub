@@ -52,7 +52,7 @@ function loadLiveWeather() {
     fetch(weatherUrl)
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
+            if (data && data.current) {
                 const current = data.current;
                 const units = data.current_units;
                 const weatherEl = document.getElementById('weatherWidget');
