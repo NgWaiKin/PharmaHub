@@ -46,7 +46,10 @@ function getWeatherDescription(code) {
 }
 
 function loadLiveWeather() {
-    fetch('/api/external/weather')
+
+    const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=4.5825&longitude=101.0948&current=temperature_2m,relative_humidity_2m,weather_code';
+
+    fetch(weatherUrl)
         .then(res => res.json())
         .then(data => {
             if (data.success) {
