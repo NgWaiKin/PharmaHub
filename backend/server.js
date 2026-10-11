@@ -474,6 +474,8 @@ app.get('/api/external/translate', async (req, res) => {
         }
     }
     catch (error){
+        const status = error.response ? error.response.status : 'No Response Status';
+        console.error(`Translation API Error [Status: ${status}]:`, error.message);
         res.json({ success: false, translated_text: req.query.text });
     }
 });
