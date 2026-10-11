@@ -33,7 +33,7 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME || 'pharmahub_db',
   port: process.env.DB_PORT || 3306,
   dateStrings: true,
-  
+
   // Enable SSL connection for Aiven cloud database in production or when DB_SSL is true
   ssl: process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production' ? {
     rejectUnauthorized: false
@@ -335,7 +335,7 @@ app.post('/add-stock-out', async (req, res) => {
 
             res.json({ success: true });
         } 
-        catch (error) {
+        catch (error){
             res.status(500).json({ success: false, message: error.message });
         }
     });
@@ -465,8 +465,21 @@ app.get('/api/external/translate', async (req, res) => {
 });
 
 // ==================== Real-Time Weather API Proxy (Open-Meteo) ====================
+let weatherCache = {
+    data: null,
+    lastFetched: 0
+};
+
+const WEATHER_CACHE_DURATION = 10 * 60 * 1000;
+
 app.get('/api/external/weather', async (req, res) => {
     try {
+        const currentTime = Date.now();
+
+        if (weatherCache.data && (currentTime - weatherCache.lastFetched < WEATHER_CACHE_DURATION)) {
+            return res.json(weatherCache.data);
+        }
+
         const weatherUrl = 'https://api.open-meteo.com/v1/forecast?latitude=4.5825&longitude=101.0948&current=temperature_2m,relative_humidity_2m,weather_code';
         const response = await axios.get(weatherUrl);
         
@@ -476,8 +489,14 @@ app.get('/api/external/weather', async (req, res) => {
             current: data.current,
             units: data.current_units
         });
-    } catch (error) {
+    } 
+    catch (error) {
         console.error('Weather API Error:', error.message);
+
+        if (weatherCache.data) {
+            return res.json(weatherCache.data);
+        }
+
         res.status(500).json({ success: false, message: 'Failed to fetch weather data' });
     }
 });
