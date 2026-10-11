@@ -54,7 +54,7 @@ function loadLiveWeather() {
         .then(data => {
             if (data.success) {
                 const current = data.current;
-                const units = data.units;
+                const units = data.current_units;
                 const weatherEl = document.getElementById('weatherWidget');
 
                 const weatherInfo = getWeatherDescription(current.weather_code);
