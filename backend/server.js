@@ -452,12 +452,7 @@ app.get('/api/external/translate', async (req, res) => {
         const langpair = `en|${lang}`;
 
         // Send GET request to MyMemory External Translation API with a 5-second timeout limit
-        const response = await axios.get('https://api.mymemory.translated.net/get', {
-            params: {
-                q: text,
-                langpair: langpair,
-                de:'waikin.ng@qiu.edu.my'
-            },
+        const response = await axios.get(`https://lingva.ml/api/v1/en/${lang}/${encodeURIComponent(text)}`, {
             timeout: 5000 
         });
 
