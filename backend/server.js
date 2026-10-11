@@ -27,16 +27,26 @@ app.use(express.static(rootDir, { index: false }));
 
 // MySQL database connection
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'pharmahub_db',
-    dateStrings: true
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'pharmahub_db',
+  port: process.env.DB_PORT || 3306,
+  dateStrings: true,
+  
+  // Enable SSL connection for Aiven cloud database in production or when DB_SSL is true
+  ssl: process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: false
+  } : undefined
 });
 
+// Connect to the database and handle connection status
 db.connect((err) => {
-    if (err) throw err;
-    console.log('Connected to MySQL!');
+  if (err) {
+    console.error('Error connecting to MySQL database:', err);
+    return;
+  }
+  console.log('Connected to MySQL successfully!');
 });
 
 // ==================== 1. User Login Side ====================
