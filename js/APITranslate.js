@@ -33,7 +33,7 @@ async function applyPageTranslation(targetLang) {
 
         try {
             // Send the HTTP request to Express API Gateway route
-            const response = await fetch(`/api/external/translate?text=${encodeURIComponent(originalText)}&targetLang=${targetLang}&_t=${Date.now()}`);
+            const response = await fetch(`/api/external/translate?text=${encodeURIComponent(originalText)}&targetLang=${targetLang}`);
             const data = await response.json();
 
             if (data.success && data.translated_text) {
