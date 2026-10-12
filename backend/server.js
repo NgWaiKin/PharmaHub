@@ -466,8 +466,8 @@ app.get('/api/external/translate', async (req, res) => {
         });
 
         // Verify if the API returned valid translation data
-        if (response.data && response.data[0] && response.data[0][0] && response.data[0][0][0]) {
-            const translatedText = response.data[0][0][0];
+        if (response.data && response.data.translatedText) {
+            const translatedText = response.data.translatedText;
             translationCache[cacheKey] = translatedText; // Save the translation result into memory cache
             return res.json({
                 success: true,
