@@ -451,19 +451,18 @@ app.get('/api/external/translate', async (req, res) => {
         // English to Malay
         const langpair = `en|${lang}`;
 
-        // Send GET request to MyMemory External Translation API with a 5-second timeout limit
-        const response = await axios.get(`https://translate.googleapis.com/translate_a/single`, {
-            params: {
-                client: 'gtx',
-                sl: 'en',  
-                tl: lang, 
-                dt: 't',
-                q: text
-            },
+        // Send GET request to External Translation API with a 8-second timeout limit
+        const response = await axios.post('https://libretranslate.de/translate', {
+            q: text,
+            source: 'en',
+            target: lang,
+            format: 'text'
+        }, {
             headers: {
+                'Content-Type': 'application/json',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             },
-            timeout: 5000 
+            timeout: 8000 
         });
 
         // Verify if the API returned valid translation data
