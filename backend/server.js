@@ -428,7 +428,7 @@ app.get('/api/reports', (req, res) => {
 //============== API Translate Section ===============
 const translationCache = {}; // Memory cache to store translated strings and avoid redundant API requests
 const fallbackDictionary = {
-    // === 1. 公共与导航 (Global & Navigation) ===
+    // === General Message (Nav Bar) ===
     'Please enter your credentials to login': 'Sila masukkan maklumat anda untuk log masuk',
     'User Login': 'Log Masuk Pengguna',
     'Username': 'Nama Pengguna',
@@ -444,7 +444,7 @@ const fallbackDictionary = {
     'Batch & Expiry': 'Batch & Luput',
     'Reports': 'Laporan',
 
-    // === 2. 仪表盘 (Dashboard) ===
+    // === Dashboard ===
     'PharmaHub Dashboard': 'Papan Pemuka PharmaHub',
     'Total Registered SKUs': 'Jumlah SKU Berdaftar',
     'Total Units in Stock': 'Jumlah Unit dalam Stok',
@@ -538,23 +538,29 @@ app.get('/api/external/translate', async (req, res) => {
             });
         }
 
-        // Send GET request to External Translation API with a 8-second timeout limit
-        const response = await axios.post('https://libretranslate.de/translate', {
-            q: text,
-            source: 'en',
-            target: lang,
-            format: 'text'
-        }, {
+        const response = await axios.get('https://api.mymemory.translated.net/get', {
+            params: {
+                q: text,
+                langpair: `en|${lang}`,
+                de: 'waikin.ng@qiu.edu.my' // Email for higher daily free quota
+            },
             headers: {
-                'Content-Type': 'application/json',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             },
-            timeout: 8000 
+            timeout: 8000
         });
 
-        // Verify if the API returned valid translation data
-        if (response.data && response.data.translatedText) {
-            const translatedText = response.data.translatedText;
+        // 3. Parse MyMemory response format
+        if (response.data && response.data.responseData && response.data.responseData.translatedText) {
+            const translatedText = response.data.responseData.translatedText;
+
+            // Check for MyMemory warning (quota exhausted)
+            if (translatedText.includes('MYMEMORY WARNING') || translatedText.includes('PLEASE SELECT TWO DISTINCT LANGUAGES')) {
+                console.warn('MyMemory quota warning, using fallback dictionary');
+                const fallback = fallbackDictionary[text] || text;
+                return res.json({ success: false, translated_text: fallback });
+            }
+
             translationCache[cacheKey] = translatedText;
             return res.json({
                 success: true,
@@ -562,7 +568,7 @@ app.get('/api/external/translate', async (req, res) => {
             });
         } 
         else {
-            // API unsuccess, refer from dictionary
+            // API returned empty data, use fallback dictionary
             const fallback = fallbackDictionary[text] || text;
             return res.json({ success: false, translated_text: fallback });
         }
