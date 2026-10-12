@@ -448,11 +448,11 @@ app.get('/api/external/translate', async (req, res) => {
             });
         }
 
-        // English to Malay
-        const langpair = `en|${lang}`;
-
         // Send GET request to MyMemory External Translation API with a 5-second timeout limit
         const response = await axios.get(`https://lingva.ml/api/v1/en/${lang}/${encodeURIComponent(text)}`, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            },
             timeout: 5000 
         });
 
