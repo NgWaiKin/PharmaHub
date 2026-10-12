@@ -475,8 +475,8 @@ const fallbackDictionary = {
     'Selling Price (RM)': 'Harga Jualan (RM)',
     'Minimum Safety Stock': 'Stok Keselamatan Minimum',
     'Medicine Remarks': 'Catatan Ubat',
-    'Cancel': 'Batal',
     'Save Medicine': 'Simpan Ubat',
+    'Cancel': 'Batal',
 
     //  Batch & Expiry Tracker Page
     'PharmaHub Batch Tracker': 'Penjejak Kelompok PharmaHub',
