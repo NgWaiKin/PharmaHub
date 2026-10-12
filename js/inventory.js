@@ -68,8 +68,12 @@ if (openAddModalBtn) {
     openAddModalBtn.addEventListener('click', () => {
         document.getElementById('medForm').reset();
         document.getElementById('medicine_id').readOnly = false;
-        document.getElementById('formTitle').innerText = 'Add New Medicine';
-        setSubmitBtnText('Save Medicine ✔');
+
+        const formTitle = document.getElementById('formTitle');
+        formTitle.textContent = 'Add New Medicine';
+        formTitle.setAttribute('data-original', 'Add New Medicine');
+        setSubmitBtnText('Save Medicine');
+
         document.getElementById('previewImage').style.display = 'none';
         updateTypeOptions('');
         medModal.style.display = 'block';
@@ -221,9 +225,10 @@ function previewSelectedImage(event) {
 }
 
 function setSubmitBtnText(text) {
-    const span = document.getElementById('submitBtnText');
+    const span = document.querySelector('#submitBtn span[data-translate]');
     if (span) {
         span.textContent = text;
+        span.setAttribute('data-original', text);
     }
 
     if (window.currentLang && window.currentLang !== 'en' && typeof applyPageTranslation === 'function') {
@@ -274,8 +279,10 @@ window.editMed = function(id) {
         document.getElementById('previewImage').style.display = 'none';
     }
 
-    document.getElementById('formTitle').innerText = 'Edit Medicine (' + m.medicine_id + ')';
-    setSubmitBtnText('Update Medicine ✎');
+    const formTitle = document.getElementById('formTitle');
+    formTitle.textContent = 'Edit Medicine (' + m.medicine_id + ')';
+    formTitle.setAttribute('data-original', 'Edit Medicine (' + m.medicine_id + ')');
+    setSubmitBtnText('Update Medicine');
     
     // Open the modal for editing
     medModal.style.display = 'block';
