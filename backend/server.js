@@ -426,6 +426,7 @@ app.get('/api/reports', (req, res) => {
 });
 
 //============== API Translate Section ===============
+// ============== API Translate Section ===============
 const translationCache = {}; // Memory cache
 
 app.get('/api/external/translate', async (req, res) => {
@@ -447,60 +448,45 @@ app.get('/api/external/translate', async (req, res) => {
             });
         }
 
+        // 2. 定义多个 LibreTranslate 公共节点（按稳定性排序）
+        const libreTranslateNodes = [
+            'https://libretranslate.de/translate',
+            'https://translate.argosopentech.com/translate',
+            'https://libretranslate.pussthecat.org/translate'
+        ];
+
         let translatedText = null;
 
-        // ========== 方案 A：尝试 Google 免费接口 ==========
-        try {
-            const googleResponse = await axios.get(`https://translate.googleapis.com/translate_a/single`, {
-                params: {
-                    client: 'gtx',
-                    sl: 'en',
-                    tl: lang,
-                    dt: 't',
-                    q: text
-                },
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                },
-                timeout: 5000
-            });
-
-            if (googleResponse.data && googleResponse.data[0] && googleResponse.data[0][0] && googleResponse.data[0][0][0]) {
-                translatedText = googleResponse.data[0][0][0];
-                console.log('Google 翻译成功');
-            }
-        } catch (googleError) {
-            console.warn('Google 翻译失败，尝试备用方案...', googleError.message);
-        }
-
-        // ========== 方案 B：如果 Google 失败，尝试 MyMemory ==========
-        if (!translatedText) {
+        // 3. 依次尝试每个节点
+        for (const nodeUrl of libreTranslateNodes) {
             try {
-                const myMemoryResponse = await axios.get('https://api.mymemory.translated.net/get', {
-                    params: {
-                        q: text,
-                        langpair: `en|${lang}`,
-                        de: 'waikin.ng@qiu.edu.my'
-                    },
+                console.log(`尝试节点: ${nodeUrl}`);
+                const response = await axios.post(nodeUrl, {
+                    q: text,
+                    source: 'en',
+                    target: lang,
+                    format: 'text'
+                }, {
                     headers: {
+                        'Content-Type': 'application/json',
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
                     },
-                    timeout: 5000
+                    timeout: 8000
                 });
 
-                if (myMemoryResponse.data && myMemoryResponse.data.responseData && myMemoryResponse.data.responseData.translatedText) {
-                    const result = myMemoryResponse.data.responseData.translatedText;
-                    if (!result.includes('MYMEMORY WARNING') && !result.includes('PLEASE SELECT TWO DISTINCT LANGUAGES')) {
-                        translatedText = result;
-                        console.log('MyMemory 翻译成功');
-                    }
+                // 解析 LibreTranslate 返回格式
+                if (response.data && response.data.translatedText) {
+                    translatedText = response.data.translatedText;
+                    console.log(`节点 ${nodeUrl} 翻译成功`);
+                    break; // 成功就跳出循环
                 }
-            } catch (myMemoryError) {
-                console.error('MyMemory 也失败了:', myMemoryError.message);
+            } catch (nodeError) {
+                console.warn(`节点 ${nodeUrl} 失败:`, nodeError.message);
+                // 继续尝试下一个节点
             }
         }
 
-        // 3. 返回结果
+        // 4. 返回结果
         if (translatedText) {
             translationCache[cacheKey] = translatedText;
             return res.json({
@@ -508,8 +494,7 @@ app.get('/api/external/translate', async (req, res) => {
                 translated_text: translatedText
             });
         } else {
-            // 如果两个都失败，返回原文，并在日志里明确报错
-            console.error('所有翻译接口均失败，返回原文:', text);
+            console.error('所有 LibreTranslate 节点均失败，返回原文:', text);
             return res.json({ success: false, translated_text: text });
         }
 
