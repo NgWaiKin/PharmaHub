@@ -426,13 +426,103 @@ app.get('/api/reports', (req, res) => {
 });
 
 //============== API Translate Section ===============
-// ============== API Translate Section ===============
-const translationCache = {}; // Memory cache
+const translationCache = {}; // Memory cache to store translated strings and avoid redundant API requests
+const fallbackDictionary = {
+    // === 1. 公共与导航 (Global & Navigation) ===
+    'Please enter your credentials to login': 'Sila masukkan maklumat anda untuk log masuk',
+    'User Login': 'Log Masuk Pengguna',
+    'Username': 'Nama Pengguna',
+    'Password': 'Kata Laluan',
+    'Login': 'Log Masuk',
+    'Logged in as': 'Log masuk sebagai',
+    'Logout': 'Log Keluar',
+    'Time:': 'Masa:',
+    'Weather': 'Cuaca',
+    'Dashboard': 'Papan Pemuka',
+    'Inventory': 'Inventori',
+    'Stock In/Out': 'Stok Masuk/Keluar',
+    'Batch & Expiry': 'Batch & Luput',
+    'Reports': 'Laporan',
+
+    // === 2. 仪表盘 (Dashboard) ===
+    'PharmaHub Dashboard': 'Papan Pemuka PharmaHub',
+    'Total Registered SKUs': 'Jumlah SKU Berdaftar',
+    'Total Units in Stock': 'Jumlah Unit dalam Stok',
+    'Near-Expiry Batches': 'Batch Hampir Luput',
+    'Low Stock Alerts': 'Amaran Stok Rendah',
+    'Near Expiry Batches': 'Batch Hampir Luput',
+    'Batch Number': 'Nombor Batch',
+    'Medicine Name': 'Nama Ubat',
+    'Category': 'Kategori',
+    'Stock Left': 'Stok Baki',
+    'Expiry Date': 'Tarikh Luput',
+    'Days Remain': 'Baki Hari',
+    'Risk Level': 'Tahap Risiko',
+
+    // === 3. 库存管理 (Inventory) ===
+    'PharmaHub Inventory': 'Inventori PharmaHub',
+    'Search & Filter': 'Cari & Penapis',
+    'Search Medicine': 'Cari Ubat',
+    'Search': 'Cari',
+    'Reset': 'Set Semula',
+    'Registered Drug List': 'Senarai Ubat Berdaftar',
+    'Overview of all registered medicine items in inventory': 'Gambaran keseluruhan semua item ubat berdaftar dalam inventori',
+    'Add New Medicine': 'Tambah Ubat Baru',
+    'Medicine ID': 'ID Ubat',
+    'Medicine Image': 'Gambar Ubat',
+    'Medicine Type': 'Jenis Ubat',
+    'Dosage Form': 'Bentuk Dos',
+    'Cost Price (RM)': 'Harga Kos (RM)',
+    'Selling Price (RM)': 'Harga Jualan (RM)',
+    'Minimum Safety Stock': 'Stok Keselamatan Minimum',
+    'Medicine Remarks': 'Catatan Ubat',
+    'Cancel': 'Batal',
+    'Save Medicine': 'Simpan Ubat',
+
+    // === 4. 批次与效期 (Batch & Expiry Tracker) ===
+    'PharmaHub Batch Tracker': 'Penjejak Batch PharmaHub',
+    'Filter by Status': 'Tapis mengikut Status',
+    'Select Status': 'Pilih Status',
+    'All Batches in Storage': 'Semua Batch dalam Simpanan',
+    'Batch ID': 'ID Batch',
+    'Remaining Quantity': 'Kuantiti Baki',
+    'Status': 'Status',
+    'Supplier': 'Pembekal',
+    'Action': 'Tindakan',
+
+    // === 5. 库存出入库操作 (Stock In/Out) ===
+    'PharmaHub Stock Operations': 'Operasi Stok PharmaHub',
+    'Stock In (Receive Inventory)': 'Stok Masuk (Terima Inventori)',
+    'Select Medicine': 'Pilih Ubat',
+    'Existing Batches': 'Batch Sedia Ada',
+    'Quantity': 'Kuantiti',
+    'Submit Stock In': 'Hantar Stok Masuk',
+    'Stock Out (Dispense / Deduct)': 'Stok Keluar (Agih / Potong)',
+    'Available Batches (Deduct Order)': 'Batch Tersedia (Pesanan Potongan)',
+    'Deduct Quantity': 'Kuantiti Potongan',
+    'Stock Out Reason': 'Sebab Stok Keluar',
+    'Confirm Stock Out': 'Sahkan Stok Keluar',
+
+    // === 6. 审计与报表 (Reports) ===
+    'PharmaHub Audit Trail Reports': 'Laporan Jejak Audit PharmaHub',
+    'Filter Transaction Logs': 'Tapis Log Transaksi',
+    'Search by Medicine Name': 'Cari mengikut Nama Ubat',
+    'Filter by Type': 'Tapis mengikut Jenis',
+    'Stock Movement Transaction Logs': 'Log Transaksi Pergerakan Stok',
+    'Transaction Time': 'Masa Transaksi',
+    'Medicine': 'Ubat',
+    'Type': 'Jenis',
+    'Quantity Change': 'Perubahan Kuantiti',
+    'Reason': 'Sebab',
+    'Total Amount': 'Jumlah Amaun',
+    'Action By': 'Tindakan Oleh'
+};
 
 app.get('/api/external/translate', async (req, res) => {
     try {
         const { text, targetLang } = req.query;
 
+        // Validate if text is provided in the query parameters
         if (!text) {
             return res.status(400).json({ success: false, message: 'Text is required' });
         }
@@ -440,7 +530,7 @@ app.get('/api/external/translate', async (req, res) => {
         const lang = targetLang || 'ms';
         const cacheKey = `${lang}:${text}`;
 
-        // 1. 检查缓存
+        // Return cached translation immediately if available to bypass external API call limits
         if (translationCache[cacheKey]) {
             return res.json({
                 success: true,
@@ -448,59 +538,39 @@ app.get('/api/external/translate', async (req, res) => {
             });
         }
 
-        // 2. 定义多个 LibreTranslate 公共节点（按稳定性排序）
-        const libreTranslateNodes = [
-            'https://libretranslate.de/translate',
-            'https://translate.argosopentech.com/translate',
-            'https://libretranslate.pussthecat.org/translate'
-        ];
+        // Send GET request to External Translation API with a 8-second timeout limit
+        const response = await axios.post('https://libretranslate.de/translate', {
+            q: text,
+            source: 'en',
+            target: lang,
+            format: 'text'
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            },
+            timeout: 8000 
+        });
 
-        let translatedText = null;
-
-        // 3. 依次尝试每个节点
-        for (const nodeUrl of libreTranslateNodes) {
-            try {
-                console.log(`尝试节点: ${nodeUrl}`);
-                const response = await axios.post(nodeUrl, {
-                    q: text,
-                    source: 'en',
-                    target: lang,
-                    format: 'text'
-                }, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                    },
-                    timeout: 8000
-                });
-
-                // 解析 LibreTranslate 返回格式
-                if (response.data && response.data.translatedText) {
-                    translatedText = response.data.translatedText;
-                    console.log(`节点 ${nodeUrl} 翻译成功`);
-                    break; // 成功就跳出循环
-                }
-            } catch (nodeError) {
-                console.warn(`节点 ${nodeUrl} 失败:`, nodeError.message);
-                // 继续尝试下一个节点
-            }
-        }
-
-        // 4. 返回结果
-        if (translatedText) {
+        // Verify if the API returned valid translation data
+        if (response.data && response.data.translatedText) {
+            const translatedText = response.data.translatedText;
             translationCache[cacheKey] = translatedText;
             return res.json({
                 success: true,
                 translated_text: translatedText
             });
-        } else {
-            console.error('所有 LibreTranslate 节点均失败，返回原文:', text);
-            return res.json({ success: false, translated_text: text });
+        } 
+        else {
+            // API unsuccess, refer from dictionary
+            const fallback = fallbackDictionary[text] || text;
+            return res.json({ success: false, translated_text: fallback });
         }
-
-    } catch (error) {
-        console.error('Translation API 最终错误:', error.message);
-        res.json({ success: false, translated_text: req.query.text });
+    }
+    catch (error){
+        console.error('Translation API Error:', error.message);
+        const fallback = fallbackDictionary[req.query.text] || req.query.text;
+        res.json({ success: false, translated_text: fallback });
     }
 });
 // ==================== Real-Time Weather API Proxy (Open-Meteo) ====================

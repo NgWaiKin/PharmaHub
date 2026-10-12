@@ -37,18 +37,17 @@ async function applyPageTranslation(targetLang) {
             const response = await fetch(`/api/external/translate?text=${encodeURIComponent(originalText)}&targetLang=${targetLang}&_t=${Date.now()}`);
             const data = await response.json();
 
-            if (data.success && data.translated_text) {
-                if (data.translated_text.includes('<') && data.translated_text.includes('>')) {
-                    console.warn('Ignored HTML Tag:', data.translated_text);
-                    el.innerText = originalText;
+            if (data.translated_text && data.translated_text.trim() !== '') {
+                if (data.translated_text.includes('<') || data.translated_text.includes('>') || data.translated_text.length > 100) {
+                    console.warn('Ignore Translate Error:', data.translated_text);
+                    el.textContent = originalText;
                 }
                 else {
-                    el.innerText = data.translated_text;
+                    el.textContent = data.translated_text;
                 }
             }
             else{
-                // Fallback to original English text if API translation fails
-                el.innerText = originalText;
+                el.textContent = originalText;
             }
         } 
         catch (err){
