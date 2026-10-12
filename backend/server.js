@@ -428,7 +428,7 @@ app.get('/api/reports', (req, res) => {
 //============== API Translate Section ===============
 const translationCache = {}; // Memory cache to store translated strings and avoid redundant API requests
 const fallbackDictionary = {
-    // === General Message (Nav Bar) ===
+    // General Message (Nav Bar) 
     'Please enter your credentials to login': 'Sila masukkan maklumat anda untuk log masuk',
     'User Login': 'Log Masuk Pengguna',
     'Username': 'Nama Pengguna',
@@ -437,29 +437,28 @@ const fallbackDictionary = {
     'Logged in as': 'Log masuk sebagai',
     'Logout': 'Log Keluar',
     'Time:': 'Masa:',
-    'Weather': 'Cuaca',
     'Dashboard': 'Papan Pemuka',
     'Inventory': 'Inventori',
     'Stock In/Out': 'Stok Masuk/Keluar',
-    'Batch & Expiry': 'Batch & Luput',
+    'Batch & Expiry': 'Kelompok & Tamat Tempoh',
     'Reports': 'Laporan',
 
-    // === Dashboard ===
+    // Dashboard Page
     'PharmaHub Dashboard': 'Papan Pemuka PharmaHub',
     'Total Registered SKUs': 'Jumlah SKU Berdaftar',
     'Total Units in Stock': 'Jumlah Unit dalam Stok',
-    'Near-Expiry Batches': 'Batch Hampir Luput',
+    'Near-Expiry Batches': 'Kelompok Hampir Luput',
     'Low Stock Alerts': 'Amaran Stok Rendah',
-    'Near Expiry Batches': 'Batch Hampir Luput',
-    'Batch Number': 'Nombor Batch',
+    'Near Expiry Batches': 'Kelompok Hampir Luput',
+    'Batch Number': 'Nombor Kelompok',
     'Medicine Name': 'Nama Ubat',
     'Category': 'Kategori',
-    'Stock Left': 'Stok Baki',
+    'Stock Left': 'Stok Tertinggal',
     'Expiry Date': 'Tarikh Luput',
     'Days Remain': 'Baki Hari',
     'Risk Level': 'Tahap Risiko',
 
-    // === 3. 库存管理 (Inventory) ===
+    // Inventory Page
     'PharmaHub Inventory': 'Inventori PharmaHub',
     'Search & Filter': 'Cari & Penapis',
     'Search Medicine': 'Cari Ubat',
@@ -471,39 +470,42 @@ const fallbackDictionary = {
     'Medicine ID': 'ID Ubat',
     'Medicine Image': 'Gambar Ubat',
     'Medicine Type': 'Jenis Ubat',
-    'Dosage Form': 'Bentuk Dos',
-    'Cost Price (RM)': 'Harga Kos (RM)',
+    'Dosage Form': 'Bentuk Ubat',
+    'Cost Price (RM)': 'Harga (RM)',
     'Selling Price (RM)': 'Harga Jualan (RM)',
     'Minimum Safety Stock': 'Stok Keselamatan Minimum',
     'Medicine Remarks': 'Catatan Ubat',
     'Cancel': 'Batal',
     'Save Medicine': 'Simpan Ubat',
 
-    // === 4. 批次与效期 (Batch & Expiry Tracker) ===
+    //  Batch & Expiry Tracker Page
     'PharmaHub Batch Tracker': 'Penjejak Batch PharmaHub',
     'Filter by Status': 'Tapis mengikut Status',
     'Select Status': 'Pilih Status',
     'All Batches in Storage': 'Semua Batch dalam Simpanan',
     'Batch ID': 'ID Batch',
-    'Remaining Quantity': 'Kuantiti Baki',
+    'Remaining Quantity': 'Kuantiti Tertinggal',
     'Status': 'Status',
     'Supplier': 'Pembekal',
     'Action': 'Tindakan',
+    'Select a medicine to view batches': 'Pilih ubat untuk lihat kelompok',
 
-    // === 5. 库存出入库操作 (Stock In/Out) ===
+    // Stock In/Out Page
     'PharmaHub Stock Operations': 'Operasi Stok PharmaHub',
     'Stock In (Receive Inventory)': 'Stok Masuk (Terima Inventori)',
+    'Select Supplier': 'Pilih Pembekal',
+    'Select a medicine to view batches': 'Pilih ubat untuk lihat kelompok',
     'Select Medicine': 'Pilih Ubat',
     'Existing Batches': 'Batch Sedia Ada',
     'Quantity': 'Kuantiti',
     'Submit Stock In': 'Hantar Stok Masuk',
     'Stock Out (Dispense / Deduct)': 'Stok Keluar (Agih / Potong)',
-    'Available Batches (Deduct Order)': 'Batch Tersedia (Pesanan Potongan)',
+    'Available Batches (Deduct Order)': 'Kelompok Tersedia (Pesanan Potongan)',
     'Deduct Quantity': 'Kuantiti Potongan',
     'Stock Out Reason': 'Sebab Stok Keluar',
     'Confirm Stock Out': 'Sahkan Stok Keluar',
 
-    // === 6. 审计与报表 (Reports) ===
+    // Reports Page
     'PharmaHub Audit Trail Reports': 'Laporan Jejak Audit PharmaHub',
     'Filter Transaction Logs': 'Tapis Log Transaksi',
     'Search by Medicine Name': 'Cari mengikut Nama Ubat',
