@@ -475,8 +475,8 @@ const fallbackDictionary = {
     'Selling Price (RM)': 'Harga Jualan (RM)',
     'Minimum Safety Stock': 'Stok Keselamatan Minimum',
     'Medicine Remarks': 'Catatan Ubat',
-    'Save Medicine ✔': 'Simpan Ubat ✔',
-    'Update Medicine ✎': 'Kemas Kini Ubat ✔',
+    'Save Medicine': 'Simpan Ubat',
+    'Update Medicine': 'Kemas Kini Ubat',
     'Cancel': 'Batal',
 
     //  Batch & Expiry Tracker Page
