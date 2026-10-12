@@ -452,18 +452,23 @@ app.get('/api/external/translate', async (req, res) => {
         const langpair = `en|${lang}`;
 
         // Send GET request to MyMemory External Translation API with a 5-second timeout limit
-        const response = await axios.get('https://api.mymemory.translated.net/get', {
+        const response = await axios.get(`https://translate.googleapis.com/translate_a/single`, {
             params: {
-                q: text,
-                langpair: langpair,
-                de:'waikin.ng@qiu.edu.my'
+                client: 'gtx',
+                sl: 'en',  
+                tl: lang, 
+                dt: 't',
+                q: text
+            },
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             },
             timeout: 5000 
         });
 
         // Verify if the API returned valid translation data
-        if (response.data && response.data.responseData) {
-            const translatedText = response.data.responseData.translatedText;
+        if (response.data && response.data[0] && response.data[0][0] && response.data[0][0][0]) {
+            const translatedText = response.data[0][0][0];
             translationCache[cacheKey] = translatedText; // Save the translation result into memory cache
             return res.json({
                 success: true,
