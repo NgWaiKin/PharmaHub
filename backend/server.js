@@ -426,13 +426,12 @@ app.get('/api/reports', (req, res) => {
 });
 
 //============== API Translate Section ===============
-const translationCache = {}; // Memory cache to store translated strings and avoid redundant API requests
+const translationCache = {}; // Memory cache
 
 app.get('/api/external/translate', async (req, res) => {
     try {
         const { text, targetLang } = req.query;
 
-        // Validate if text is provided in the query parameters
         if (!text) {
             return res.status(400).json({ success: false, message: 'Text is required' });
         }
@@ -440,7 +439,7 @@ app.get('/api/external/translate', async (req, res) => {
         const lang = targetLang || 'ms';
         const cacheKey = `${lang}:${text}`;
 
-        // Return cached translation immediately if available to bypass external API call limits
+        // 1. 检查缓存
         if (translationCache[cacheKey]) {
             return res.json({
                 success: true,
@@ -448,39 +447,74 @@ app.get('/api/external/translate', async (req, res) => {
             });
         }
 
-        // English to Malay
-        const langpair = `en|${lang}`;
+        let translatedText = null;
 
-        // Send GET request to External Translation API with a 8-second timeout limit
-        const response = await axios.post('https://libretranslate.de/translate', {
-            q: text,
-            source: 'en',
-            target: lang,
-            format: 'text'
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            },
-            timeout: 8000 
-        });
+        // ========== 方案 A：尝试 Google 免费接口 ==========
+        try {
+            const googleResponse = await axios.get(`https://translate.googleapis.com/translate_a/single`, {
+                params: {
+                    client: 'gtx',
+                    sl: 'en',
+                    tl: lang,
+                    dt: 't',
+                    q: text
+                },
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                },
+                timeout: 5000
+            });
 
-        // Verify if the API returned valid translation data
-        if (response.data && response.data.translatedText) {
-            const translatedText = response.data.translatedText;
-            translationCache[cacheKey] = translatedText; // Save the translation result into memory cache
+            if (googleResponse.data && googleResponse.data[0] && googleResponse.data[0][0] && googleResponse.data[0][0][0]) {
+                translatedText = googleResponse.data[0][0][0];
+                console.log('Google 翻译成功');
+            }
+        } catch (googleError) {
+            console.warn('Google 翻译失败，尝试备用方案...', googleError.message);
+        }
+
+        // ========== 方案 B：如果 Google 失败，尝试 MyMemory ==========
+        if (!translatedText) {
+            try {
+                const myMemoryResponse = await axios.get('https://api.mymemory.translated.net/get', {
+                    params: {
+                        q: text,
+                        langpair: `en|${lang}`,
+                        de: 'waikin.ng@qiu.edu.my'
+                    },
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                    },
+                    timeout: 5000
+                });
+
+                if (myMemoryResponse.data && myMemoryResponse.data.responseData && myMemoryResponse.data.responseData.translatedText) {
+                    const result = myMemoryResponse.data.responseData.translatedText;
+                    if (!result.includes('MYMEMORY WARNING') && !result.includes('PLEASE SELECT TWO DISTINCT LANGUAGES')) {
+                        translatedText = result;
+                        console.log('MyMemory 翻译成功');
+                    }
+                }
+            } catch (myMemoryError) {
+                console.error('MyMemory 也失败了:', myMemoryError.message);
+            }
+        }
+
+        // 3. 返回结果
+        if (translatedText) {
+            translationCache[cacheKey] = translatedText;
             return res.json({
                 success: true,
                 translated_text: translatedText
             });
-        }
-        else {
+        } else {
+            // 如果两个都失败，返回原文，并在日志里明确报错
+            console.error('所有翻译接口均失败，返回原文:', text);
             return res.json({ success: false, translated_text: text });
         }
-    }
-    catch (error){
-        const status = error.response ? error.response.status : 'No Response Status';
-        console.error(`Translation API Error [Status: ${status}]:`, error.message);
+
+    } catch (error) {
+        console.error('Translation API 最终错误:', error.message);
         res.json({ success: false, translated_text: req.query.text });
     }
 });
