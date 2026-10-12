@@ -69,7 +69,7 @@ if (openAddModalBtn) {
         document.getElementById('medForm').reset();
         document.getElementById('medicine_id').readOnly = false;
         document.getElementById('formTitle').innerText = 'Add New Medicine';
-        document.getElementById('submitBtn').innerText = 'Save Medicine ✔';
+        setSubmitBtnText('Save Medicine ✔');
         document.getElementById('previewImage').style.display = 'none';
         updateTypeOptions('');
         medModal.style.display = 'block';
@@ -220,6 +220,17 @@ function previewSelectedImage(event) {
     }
 }
 
+function setSubmitBtnText(text) {
+    const span = document.getElementById('submitBtnText');
+    if (span) {
+        span.textContent = text;
+    }
+
+    if (window.currentLang && window.currentLang !== 'en' && typeof applyPageTranslation === 'function') {
+        applyPageTranslation(window.currentLang);
+    }
+}
+
 //View the medicine detail
 window.viewMed = function(id) {
     const m = allMedicines.find(item => item.medicine_id === id);
@@ -264,7 +275,7 @@ window.editMed = function(id) {
     }
 
     document.getElementById('formTitle').innerText = 'Edit Medicine (' + m.medicine_id + ')';
-    document.getElementById('submitBtn').innerText = 'Update Medicine ✎';
+    setSubmitBtnText('Update Medicine ✎');
     
     // Open the modal for editing
     medModal.style.display = 'block';

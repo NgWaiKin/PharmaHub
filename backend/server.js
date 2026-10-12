@@ -477,6 +477,7 @@ const fallbackDictionary = {
     'Medicine Remarks': 'Catatan Ubat',
     'Save Medicine': 'Simpan Ubat',
     'Update Medicine': 'Kemas Kini Ubat',
+    'Edit Medicine': 'Sunting Ubat',
     'Cancel': 'Batal',
 
     //  Batch & Expiry Tracker Page
