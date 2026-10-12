@@ -479,11 +479,11 @@ const fallbackDictionary = {
     'Save Medicine': 'Simpan Ubat',
 
     //  Batch & Expiry Tracker Page
-    'PharmaHub Batch Tracker': 'Penjejak Batch PharmaHub',
+    'PharmaHub Batch Tracker': 'Penjejak Kelompok PharmaHub',
     'Filter by Status': 'Tapis mengikut Status',
     'Select Status': 'Pilih Status',
-    'All Batches in Storage': 'Semua Batch dalam Simpanan',
-    'Batch ID': 'ID Batch',
+    'All Batches in Storage': 'Semua Kelompok dalam Simpanan',
+    'Batch ID': 'ID Kelompok',
     'Remaining Quantity': 'Kuantiti Tertinggal',
     'Status': 'Status',
     'Supplier': 'Pembekal',
